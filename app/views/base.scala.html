@@ -1,0 +1,29 @@
+@()(content: Html)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>@Messages("common.app_title")</title>
+    <link rel="stylesheet" href='https://use.fontawesome.com/releases/v5.2.0/css/all.css'>
+    <link rel="stylesheet" href='@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")'>
+    <script src='@routes.Assets.versioned("lib/jquery/jquery.min.js")'></script>
+    <script src='@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")'></script>
+    <script src='@routes.Assets.versioned("lib/vue/vue.min.js")'></script>
+</head>
+<body>
+    @views.html.menu()
+
+    <div id="app">{{ message }}</div>
+    <div class="container container-main">@content</div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello Vue!'
+            }
+        });
+    </script>
+</body>
+</html>
