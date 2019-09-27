@@ -9,9 +9,4 @@ public class HomeController extends Controller {
         return ok(views.html.index.render());
     }
 
-    public Result setLanguage(String language) {
-        ctx().changeLang(language);
-        return redirect(routes.HomeController.index());
-    }
-
 }
