@@ -26,12 +26,12 @@ public class IssueController extends Controller {
             return notFound();
         }
 
-        return ok(issue.toJson());
+        return ok(issue.toJson(getMessages()));
     }
 
     public Result list() {
         var data = new ObjectMapper().createArrayNode();
-        Issue.FIND.query().findEach(i -> data.add(i.toJson()));
+        Issue.FIND.query().findEach(i -> data.add(i.toJson(getMessages())));
         return ok(data);
     }
 

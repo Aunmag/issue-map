@@ -1,1 +1,9 @@
 views.index.test=Test
+
+# Models
+
+models.issue_status.new=New
+models.issue_status.canceled=Canceled
+models.issue_status.approved=Approved
+models.issue_status.performing=Performing
+models.issue_status.resolved=Resolved
