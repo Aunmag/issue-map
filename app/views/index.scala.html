@@ -1,7 +1,93 @@
 @views.html.base() {
-    <div class="row">
-        <div class="col-4 offset-4 centered">
-            <a class="btn btn-primary btn-block" href="@routes.HomeController.index()" role="button">@Messages("views.index.test")</a>
+    <div id="app">
+        <div v-bind:style="mapStyle" id="map"></div>
+        <div v-bind:style="cardStyle" class="card card-default" id='menu'>
+            <div class="card-body">
+                <button class="btn btn-default">Test</button>
+            </div>
         </div>
     </div>
+
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                cardStyle: {
+                    height: null
+                },
+                mapStyle: {
+                    height: null,
+                    width: null
+                },
+                popup : null,
+                layer : null,
+                map : null,
+                visibleMenu: true,
+                drawMode: false
+            },
+            methods: {
+                showCoordinates: function(e) {
+                    alert(e.latlng);
+                },
+                createMarker: function(e) {
+                    L.marker(e.latlng).addTo(this.map);
+                },
+                centerMap: function(e) {
+                    this.map.panTo(e.latlng);
+                },
+                zoomIn: function(e) {
+                    this.map.zoomIn();
+                },
+                zoomOut: function(e) {
+                    this.map.zoomOut();
+                },
+                onResize: function() {
+                    this.cardStyle.height = window.innerHeight - 100 + 'px';
+                    this.mapStyle.height = window.innerHeight + 'px';
+                    this.mapStyle.width = window.innerWidth + 'px';
+                }
+            },
+            mounted: function () {
+                this.$nextTick(() => {
+                    this.popup = new L.Popup();
+                    this.layer = new L.TileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                        id: 'mapbox.streets',
+                        maxZoom: 18,
+                        minZoom: 14,
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                        accessToken: 'pk.eyJ1IjoibGZvcmltIiwiYSI6ImNqa2d6eXZ6ejBkNzUza2xod3d6M2Z5dzQifQ.9D55ohFuy_MoCvxW50HSXA'
+                    });
+                    this.map = new L.Map('map', {
+                        center: new L.LatLng(55.438944, 65.339271),
+                        zoom: 16,
+                        layers: [this.layer]
+                    });
+                    L.DomUtil.addClass(this.map._container, 'crosshair-cursor-default');
+                    $(window).on('resize', this.onResize);
+                    $(window).on('mousedown', function(e) {
+                        if (e.button == 0 && !this.drawMode) {
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
+                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
+                        } else if (e.button == 0 && this.drawMode) {
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-draw');
+                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
+                        }
+                    });
+                    $(window).on('mouseup', function(e) {
+                        if (e.button == 0 && !this.drawMode) {
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-default');
+                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-drag');
+                        } else if (e.button == 0 && this.drawMode) {
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
+                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
+                        }
+                    });
+                    this.onResize();
+                    setInterval(function(vm) {
+                        vm.map.invalidateSize();
+                    }, 250, this);
+                });
+            }
+        });
+    </script>
 }

@@ -1,0 +1,16 @@
+#menu {
+    position: absolute;
+    z-index: 1000;
+    top: 50px;
+    left: 50px;
+    min-width: 300px;
+}
+.leaflet-container.crosshair-cursor-default {
+    cursor: pointer;
+}
+.leaflet-container.crosshair-cursor-drag {
+    cursor: hand;
+}
+.leaflet-container.crosshair-cursor-draw {
+    cursor: crosshair;
+}

@@ -28,4 +28,4 @@ libraryDependencies += "org.jetbrains" % "annotations" % "16.0.2"
 // Web:
 libraryDependencies += "org.webjars" % "bootstrap" % "4.1.3"
 libraryDependencies += "org.webjars" % "vue" % "2.6.10"
-libraryDependencies += "org.webjars" % "leaflet" % "1.2.0"
+libraryDependencies += "org.webjars" % "leaflet" % "1.5.1"

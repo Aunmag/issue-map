@@ -1,5 +1,3 @@
-views.index.test=Test
-
 # Models
 
 models.issue_status.new=New

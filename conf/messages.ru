@@ -1,5 +1,3 @@
-views.index.test=Тест
-
 # Models
 
 models.issue_status.new=Новая
