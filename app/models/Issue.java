@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import io.ebean.annotation.Index;
 import play.i18n.Messages;
-import tools.Utils;
+import tools.UtilsJson;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -65,11 +65,11 @@ public class Issue extends BaseModel {
                 .put("description", description)
                 .put("lat", lat)
                 .put("lon", lon)
-                .put("crated", Utils.toJson(created));
+                .put("crated", UtilsJson.format(created));
 
         json.set("status", status.toJson(messages));
-        json.set("categories", Utils.toJsonArray(categories, messages));
-        json.set("authorities", Utils.toJsonArray(authorities, messages));
+        json.set("categories", UtilsJson.toArray(categories, messages));
+        json.set("authorities", UtilsJson.toArray(authorities, messages));
 
         return json;
     }
@@ -94,7 +94,7 @@ public class Issue extends BaseModel {
         if (data.has("categories")) {
             categories = new ArrayList<>();
 
-            Utils.jsonArrayEachInt(data, "categories", id -> {
+            UtilsJson.eachInt(data, "categories", id -> {
                 // TODO: Optimize - fetch ID only
                 categories.add(IssueCategory.FIND.byId(id));
             });
@@ -103,7 +103,7 @@ public class Issue extends BaseModel {
         if (data.has("authorities")) {
             authorities = new ArrayList<>();
 
-            Utils.jsonArrayEachInt(data, "authorities", id -> {
+            UtilsJson.eachInt(data, "authorities", id -> {
                 // TODO: Optimize - fetch ID only
                 authorities.add(Authority.FIND.byId(id));
             });
