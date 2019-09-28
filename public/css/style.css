@@ -67,6 +67,7 @@ overflow: auto
     float: left;
     height: 35px;
     position: absolute;
+    width: 42px;
     right: 10px;
     background-color: #88B04B;
     color: #fff !important;
@@ -79,6 +80,7 @@ overflow: auto
     z-index: 9000;
     height: 35px;
     position: absolute;
+    width: 42px;
     right: 10px;
     background-color: #88B04B;
     color: #fff !important;
