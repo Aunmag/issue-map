@@ -59,3 +59,28 @@
 .view-container{
     padding: 0 0 0 25px;
 }
+.btn-access-admin{
+    z-index: 9000;
+    float: left;
+    height: 35px;
+    position: absolute;
+    right: 10px;
+    background-color: #88B04B;
+    color: #fff !important;
+    line-height: 35px;
+    padding: 0;
+    padding: 0 10px;
+    top: 50px;
+}
+.btn-access-user{
+    z-index: 9000;
+    height: 35px;
+    position: absolute;
+    right: 10px;
+    background-color: #88B04B;
+    color: #fff !important;
+    line-height: 35px;
+    padding: 0;
+    padding: 0 10px;
+    top: 90px;
+}
