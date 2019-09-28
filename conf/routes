@@ -11,5 +11,8 @@ POST   /api/v1/issue                controllers.api.v1.IssueController.create()
 PUT    /api/v1/issue/:id            controllers.api.v1.IssueController.update(id: Integer)
 GET    /api/v1/issue/:id            controllers.api.v1.IssueController.detail(id: Integer)
 
+GET    /api/v1/issue-category       controllers.api.v1.IssueCategoryController.list()
+GET    /api/v1/issue-category/:id   controllers.api.v1.IssueCategoryController.detail(id: Integer)
+
 GET    /api/v1/authority            controllers.api.v1.AuthorityController.list()
 GET    /api/v1/authority/:id        controllers.api.v1.AuthorityController.detail(id: Integer)
