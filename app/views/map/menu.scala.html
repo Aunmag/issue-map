@@ -1,0 +1,16 @@
+<div class="card-body">
+    <div class="row label">
+        <span>Добавить:</span>
+    </div>
+    <div class="row create-panel">
+        <a class="btn btn-menu btn-marker col" title="Точка" id="create-button" v-on:click="drawModeEnable('point')">
+            <i class="fas fa-map-marker"></i> <span>Точка</span>
+        </a>
+        <a class="btn btn-menu btn-road col" title="Дорога" id="create-button" v-on:click="drawModeEnable('road')">
+            <i class="fas fa-road"></i> <span>Дорога</span>
+        </a>
+        <a class="btn btn-menu btn-polygon col" title="Участок" id="create-button" v-on:click="drawModeEnable('polygon')">
+            <i class="fas fa-draw-polygon"></i> <span>Участок</span>
+        </a>
+    </div>
+</div>

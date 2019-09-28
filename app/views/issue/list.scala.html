@@ -1,0 +1,39 @@
+
+<div class="table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Handle</th>
+                <th scope="col">Handle</th>
+                <th scope="col">Handle</th>
+                <th scope="col">Handle</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="issue in issues">
+            <th scope="row">{{issue.id}}</th>
+            <td>{{issue.title}}</td>
+            <td>{{issue.description}}</td>
+            <td>{{issue.status.name}}</td>
+            <td>{{new Intl.DateTimeFormat('ru-RU',{
+                    year: 'numeric', month: 'numeric', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', hour12: false
+                    }).format(new Date(issue.created))}}</td>
+            <td>
+                <div v-for="category in issue.categories">
+                    {{category.name}}
+                </div>
+            </td>
+            <td>
+                <div v-for="authority in issue.authorities">
+                    {{authority.name}}
+                    {{authority.phone}}
+                </div>
+            </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -59,6 +59,9 @@
 .view-container{
     padding: 0 0 0 25px;
 }
+.view-container .card{
+overflow: auto
+}
 .btn-access-admin{
     z-index: 9000;
     float: left;

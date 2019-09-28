@@ -3,27 +3,13 @@
         <div class="row control-block">
             <div class="menu-container col-3">
                 <div v-bind:style="cardStyle" class="card card-default col-12 float-left" id='menu'>
-                    <div class="card-body">
-                        <div class="row label">
-                            <span>Добавить:</span>
-                        </div>
-                        <div class="row create-panel">
-                            <a class="btn btn-menu btn-marker col"    title="Точка" id="create-button" v-on:click="drawModeEnable('point')">
-                                <i class="fas fa-map-marker"></i> <span>Точка</span>
-                            </a>
-                            <a class="btn btn-menu btn-road col"      title="Дорога" id="create-button" v-on:click="drawModeEnable('road')">
-                                <i class="fas fa-road"></i> <span>Дорога</span>
-                            </a>
-                            <a class="btn btn-menu btn-polygon col"  title="Участок" id="create-button" v-on:click="drawModeEnable('polygon')">
-                                <i class="fas fa-draw-polygon"></i> <span>Участок</span>
-                            </a>
-                        </div>
-                    </div>
+                    @views.html.map.menu()
                 </div>
             </div>
             <div class="view-container col-9">
                 <div v-bind:style="viewStyle" class="card card-default col-12 float-right" id="view-panel" v-if="visibleViewPanel">
-                    <a class="btn  close-view" v-on:click="toggleViewPanel"><i class="fas fa-times"></i></a>
+                    <a class="btn close-view" v-on:click="toggleViewPanel"><i class="fas fa-times"></i></a>
+                    @views.html.issue.list()
                 </div>
             </div>
             <a class="btn btn-open-view" v-on:click="openView('list')"><i class="fas fa-bars"></i> Меню</a>
@@ -48,6 +34,7 @@
                 viewStyle: {
                     height: null
                 },
+                issues: [],
                 popup : null,
                 layer : null,
                 map : null,
@@ -62,7 +49,7 @@
                 }
             },
             methods: {
-                send: function (url, type, date, header) {
+                send: function (url, type, date, callback, header) {
                     var unindexed_array = date.serializeArray();
                     var indexed_array = {};
 
@@ -82,9 +69,7 @@
                         data: JSON.stringify(indexed_array),
                         headers: header,
                         dataType: 'json',
-                        success: function (data) {
-                            console.info(data);
-                        }
+                        success: callback
                     });
                 },
                 drawModeEnable: function() {
@@ -114,6 +99,7 @@
                 },
                 openView: function(view) {
                     if (view == 'list') {
+                        this.load();
                         this.toggleViewPanel();
                     }
                 },
@@ -169,11 +155,14 @@
                     this.viewStyle.height = window.innerHeight - 36 + 'px';
                     this.mapStyle.height = window.innerHeight + 'px';
                 },
-                load: function() {
+                forEachLoad: function(callback) {
                     $.get('@api.v1.routes.IssueController.list()', function(data) {
-                        data.forEach(function(marker) {
-                            this.addMarker(marker);
-                        }, vm);
+                        data.forEach(callback, vm);
+                    });
+                },
+                load: function(){
+                    $.get('@api.v1.routes.IssueController.list()', function(data) {
+                        vm.issues = data;
                     });
                 },
                 getAccess: function(access) {
@@ -231,7 +220,9 @@
                     setInterval(function(vm) {
                         vm.map.invalidateSize();
                     }, 250, this);
-                    this.load();
+                    this.forEachLoad(function(marker) {
+                        this.addMarker(marker);
+                    });
                 });
             }
         });
