@@ -29,6 +29,9 @@ public class House extends BaseModel {
     @Column(columnDefinition = "text")
     public String polygon;
 
+    @Column(nullable = false)
+    public HouseStatus status;
+
     public House(
             String name,
             String street,
@@ -45,12 +48,16 @@ public class House extends BaseModel {
 
     @Override
     public ObjectNode toJson(Messages messages) {
-        return toJsonId()
+        var json = toJsonId()
                 .put("name", name)
                 .put("street", street)
                 .put("lat", lat)
                 .put("lon", lon)
                 .put("polygon", polygon);
+
+        json.set("status", status.toJson(messages));
+
+        return json;
     }
 
 }

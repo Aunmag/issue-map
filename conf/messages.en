@@ -5,3 +5,9 @@ models.issue_status.canceled=Canceled
 models.issue_status.approved=Approved
 models.issue_status.performing=Performing
 models.issue_status.resolved=Resolved
+
+models.house_status.very_bad=Very bad
+models.house_status.bad=Bad
+models.house_status.poor=Poor
+models.house_status.good=Good
+models.house_status.very_good=Very good
