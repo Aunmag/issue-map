@@ -45,8 +45,11 @@
                 visibleViewPanel: false,
                 issueForm: {
                     lat: 0,
-                    lon: 0
-                }
+                    lon: 0,
+                    category: null
+                },
+                categories: [],
+                selected: ''
             },
             methods: {
                 send: function (url, type, date, callback, header) {
@@ -71,6 +74,10 @@
                         dataType: 'json',
                         success: callback
                     });
+                },
+                saveSelectToForm: function(e) {
+                    var position = e.target.selectedIndex;
+                    this.issueForm.category = $('#issueCategorySelectForm option')[position].val();
                 },
                 drawModeEnable: function() {
                     this.drawMode = true;
@@ -165,6 +172,13 @@
                         vm.issues = data;
                     });
                 },
+                loadIssueCategory: function() {
+                    $.get('@api.v1.routes.IssueCategoryController.list()', function(data) {
+                        data.forEach(function(category) {
+                           this.categories.push(category)
+                        }, vm);
+                    });
+                },
                 getAccess: function(access) {
                     if(access=='Admin'){
                         $.get('@api.v1.routes.ApiController.loginAsAdmin()', function(data) {});
@@ -223,6 +237,7 @@
                     this.forEachLoad(function(marker) {
                         this.addMarker(marker);
                     });
+                    this.loadIssueCategory();
                 });
             }
         });

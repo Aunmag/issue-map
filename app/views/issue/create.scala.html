@@ -23,6 +23,12 @@
             <input readonly type="text" class="form-control-plaintext" name="lat" v-bind:value="issueForm.lat">
             <input readonly type="text" class="form-control-plaintext" name="lon" v-bind:value="issueForm.lon">
           </div>
+          <div id="app">
+            <select v-model="selected" name="category">
+                <option v-for="category in categories" v-bind:value="category.id">{{ category.name }}
+                </option>
+            </select>
+         </div>
         </form>
       </div>
       <div class="modal-footer">
