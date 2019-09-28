@@ -8,7 +8,9 @@ import tools.Utils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Index(columnNames = {"lat", "lon"})
@@ -34,6 +36,9 @@ public class Issue extends BaseModel {
     @Column(nullable = false)
     public Date created;
 
+    @ManyToMany
+    public List<Authority> authorities;
+
     public Issue(
             String title,
             String description,
@@ -50,7 +55,7 @@ public class Issue extends BaseModel {
 
     @Override
     public ObjectNode toJson(Messages messages) {
-        return toJsonId()
+        var json = toJsonId()
                 .put("title", title)
                 .put("description", description)
                 .put("lat", lat)
@@ -59,6 +64,10 @@ public class Issue extends BaseModel {
                 // TODO: Return nested JSON object for status
                 .put("status", status.toString())
                 .put("status_l", messages.at(status.name));
+
+        json.set("authorities", Utils.toJsonArray(authorities, messages));
+
+        return json;
     }
 
 }

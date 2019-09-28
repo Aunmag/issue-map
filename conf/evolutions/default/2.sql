@@ -16,6 +16,16 @@ insert into authority (name) values
 ('Тест 2'),
 ('Тест 3');
 
+insert into issue_authority (issue_id, authority_id) values
+(1, 1),
+(1, 2),
+(2, 1);
+
 # --- !Downs
 
-truncate table issue;
+delete from issue_authority;
+delete from issue;
+delete from authority;
+
+alter table issue alter column id restart with 1;
+alter table authority alter column id restart with 1;
