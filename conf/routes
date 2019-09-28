@@ -16,3 +16,6 @@ GET    /api/v1/issue-category/:id   controllers.api.v1.IssueCategoryController.d
 
 GET    /api/v1/authority            controllers.api.v1.AuthorityController.list()
 GET    /api/v1/authority/:id        controllers.api.v1.AuthorityController.detail(id: Integer)
+
+GET    /api/v1/house                controllers.api.v1.HouseController.detail(lat: Double, lon: Double)
+GET    /api/v1/house/all            controllers.api.v1.HouseController.list(latMin: Double, lonMin: Double, latMax: Double, lonMax: Double)
