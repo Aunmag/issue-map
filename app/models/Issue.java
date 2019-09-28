@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import io.ebean.annotation.Index;
 import play.i18n.Messages;
+import tools.Utils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.Date;
 
 @Entity
 @Index(columnNames = {"lat", "lon"})
@@ -29,6 +31,9 @@ public class Issue extends BaseModel {
     @Column(nullable = false)
     public IssueStatus status;
 
+    @Column(nullable = false)
+    public Date created;
+
     public Issue(
             String title,
             String description,
@@ -40,6 +45,7 @@ public class Issue extends BaseModel {
         this.lat = lat;
         this.lon = lon;
         this.status = IssueStatus.NEW;
+        this.created = new Date();
     }
 
     @Override
@@ -49,6 +55,7 @@ public class Issue extends BaseModel {
                 .put("description", description)
                 .put("lat", lat)
                 .put("lon", lon)
+                .put("crated", Utils.toJson(created))
                 // TODO: Return nested JSON object for status
                 .put("status", status.toString())
                 .put("status_l", messages.at(status.name));
