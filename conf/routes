@@ -1,6 +1,9 @@
 GET     /                           controllers.HomeController.index()
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
+GET    /api/v1/auth/login/user      controllers.api.v1.ApiController.loginAsUser()
+GET    /api/v1/auth/login/admin     controllers.api.v1.ApiController.loginAsAdmin()
+GET    /api/v1/auth/access          controllers.api.v1.ApiController.access()
 GET    /api/v1/language/:language   controllers.api.v1.ApiController.setLanguage(language: String)
 
 GET    /api/v1/issue                controllers.api.v1.IssueController.list()
