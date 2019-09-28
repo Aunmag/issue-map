@@ -11,6 +11,11 @@ insert into issue (title, description, lat, lon, status, created) values
 ('Мешки с мусором', 'Кто то выкинул мусор на обочину', 55.458890, 65.410063, 1, '2019-01-01'),
 ('Светофор', 'Неделю не работает светофор', 55.459157, 65.335093, 3, '2019-01-01');
 
+insert into authority (name) values
+('Тест 1'),
+('Тест 2'),
+('Тест 3');
+
 # --- !Downs
 
 truncate table issue;

@@ -2,6 +2,10 @@ GET     /                           controllers.HomeController.index()
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 GET    /api/v1/language/:language   controllers.api.v1.ApiController.setLanguage(language: String)
+
 GET    /api/v1/issue                controllers.api.v1.IssueController.list()
 POST   /api/v1/issue                controllers.api.v1.IssueController.create()
 GET    /api/v1/issue/:id            controllers.api.v1.IssueController.detail(id: Integer)
+
+GET    /api/v1/authority            controllers.api.v1.AuthorityController.list()
+GET    /api/v1/authority/:id        controllers.api.v1.AuthorityController.detail(id: Integer)
