@@ -75,9 +75,8 @@
                         this.toggleViewPanel();
                     }
                 },
-                addMarker: function(latlng, title, category, id) {
+                addMarker: function(latlng, title, category, id, meta) {
                     var options = {
-                        title: title,
                         icon: null,
                         id: id
                     };
@@ -86,6 +85,28 @@
                         options.icon = L.AwesomeMarkers.icon({icon: category.icon, prefix: 'fa', markerColor: category.color, spin: false});
                     }
                     var marker = L.marker(latlng, options);
+
+                    if (meta) {
+                        var popup = `<b>${meta.title}</b> <i>(${meta.status.name})</i><br>`;
+
+                        meta.categories.forEach(function(category) {
+                            popup += `<br>- ${category.name}`;
+                        });
+
+                        var created = new Intl.DateTimeFormat('ru-RU').format(new Date(meta.created));
+                        popup += `<br><br><div style="color:gray">Создана: ${created}</div>`;
+
+                        marker.bindPopup(popup);
+
+                        marker.on('mouseover', function (e) {
+                            this.openPopup();
+                        });
+
+                        marker.on('mouseout', function (e) {
+                            this.closePopup();
+                        });
+                    }
+
                     marker.on('click', function(e) {
                         console.log(e.target.options.id);
                     })
@@ -108,7 +129,7 @@
                 load: function() {
                     $.get('@api.v1.routes.IssueController.list()', function(data) {
                         data.forEach(function(marker) {
-                            this.addMarker(L.latLng(marker.lat, marker.lon), marker.title, marker.categories[0], marker.id);
+                            this.addMarker(L.latLng(marker.lat, marker.lon), marker.title, marker.categories[0], marker.id, marker);
                         }, vm);
                     });
                 }

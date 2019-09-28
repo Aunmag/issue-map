@@ -65,7 +65,7 @@ public class Issue extends BaseModel {
                 .put("description", description)
                 .put("lat", lat)
                 .put("lon", lon)
-                .put("crated", UtilsJson.format(created));
+                .put("created", UtilsJson.format(created));
 
         json.set("status", status.toJson(messages));
         json.set("categories", UtilsJson.toArray(categories, messages));
