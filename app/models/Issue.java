@@ -63,11 +63,9 @@ public class Issue extends BaseModel {
                 .put("description", description)
                 .put("lat", lat)
                 .put("lon", lon)
-                .put("crated", Utils.toJson(created))
-                // TODO: Return nested JSON object for status
-                .put("status", status.toString())
-                .put("status_l", messages.at(status.name));
+                .put("crated", Utils.toJson(created));
 
+        json.set("status", status.toJson(messages));
         json.set("categories", Utils.toJsonArray(categories, messages));
         json.set("authorities", Utils.toJsonArray(authorities, messages));
 

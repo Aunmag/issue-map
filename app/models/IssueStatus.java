@@ -1,7 +1,10 @@
 package models;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.annotation.DbEnumType;
 import io.ebean.annotation.DbEnumValue;
+import play.i18n.Messages;
 
 public enum IssueStatus {
 
@@ -22,6 +25,13 @@ public enum IssueStatus {
     @DbEnumValue(storage = DbEnumType.INTEGER)
     public String getValue() {
         return Integer.toString(id);
+    }
+
+    public ObjectNode toJson(Messages messages) {
+        return new ObjectMapper()
+                .createObjectNode()
+                .put("code", toString())
+                .put("name", messages.at(name));
     }
 
 }
