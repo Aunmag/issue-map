@@ -1,5 +1,6 @@
 package tools;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.BaseModel;
@@ -8,6 +9,7 @@ import play.i18n.Messages;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class Utils {
 
@@ -26,6 +28,22 @@ public final class Utils {
         }
 
         return data;
+    }
+
+    public static void jsonArrayEachInt(
+            JsonNode json,
+            String key,
+            Consumer<Integer> consumer
+    ) {
+        if (json.has(key)) {
+            var array = json.get(key);
+
+            if (array.isArray()) {
+                for (var node : array) {
+                    consumer.accept(node.asInt());
+                }
+            }
+        }
     }
 
 }

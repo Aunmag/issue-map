@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Finder;
 import io.ebean.annotation.Index;
@@ -9,6 +10,7 @@ import tools.Utils;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +72,46 @@ public class Issue extends BaseModel {
         json.set("authorities", Utils.toJsonArray(authorities, messages));
 
         return json;
+    }
+
+    public void apply(JsonNode data) {
+        if (data.has("title")) {
+            title = data.get("title").asText();
+        }
+
+        if (data.has("description")) {
+            description = data.get("description").asText();
+        }
+
+        if (data.has("lat")) {
+            lat = data.get("lat").asDouble();
+        }
+
+        if (data.has("lon")) {
+            lon = data.get("lon").asDouble();
+        }
+
+        if (data.has("categories")) {
+            categories = new ArrayList<>();
+
+            Utils.jsonArrayEachInt(data, "categories", id -> {
+                // TODO: Optimize - fetch ID only
+                categories.add(IssueCategory.FIND.byId(id));
+            });
+        }
+
+        if (data.has("authorities")) {
+            authorities = new ArrayList<>();
+
+            Utils.jsonArrayEachInt(data, "authorities", id -> {
+                // TODO: Optimize - fetch ID only
+                authorities.add(Authority.FIND.byId(id));
+            });
+        }
+
+        if (data.has("status")) {
+            status = IssueStatus.valueOf(data.get("status").asText());
+        }
     }
 
 }

@@ -8,6 +8,7 @@ GET    /api/v1/language/:language   controllers.api.v1.ApiController.setLanguage
 
 GET    /api/v1/issue                controllers.api.v1.IssueController.list()
 POST   /api/v1/issue                controllers.api.v1.IssueController.create()
+PUT    /api/v1/issue/:id            controllers.api.v1.IssueController.update(id: Integer)
 GET    /api/v1/issue/:id            controllers.api.v1.IssueController.detail(id: Integer)
 
 GET    /api/v1/authority            controllers.api.v1.AuthorityController.list()

@@ -20,6 +20,24 @@ public class IssueController extends Controller {
         return created(issue);
     }
 
+    public Result update(Integer id) {
+        var data = request().body().asJson();
+
+        if (isAdmin()) {
+            var issue = Issue.FIND.byId(id);
+
+            if (issue == null) {
+                return notFound();
+            } else {
+                issue.apply(data);
+                issue.update();
+                return ok();
+            }
+        } else {
+            return forbidden();
+        }
+    }
+
     public Result detail(Integer id) {
         var issue = Issue.FIND.byId(id);
         if (issue == null) {
