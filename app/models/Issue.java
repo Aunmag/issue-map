@@ -37,6 +37,9 @@ public class Issue extends BaseModel {
     public Date created;
 
     @ManyToMany
+    public List<IssueCategory> categories;
+
+    @ManyToMany
     public List<Authority> authorities;
 
     public Issue(
@@ -65,6 +68,7 @@ public class Issue extends BaseModel {
                 .put("status", status.toString())
                 .put("status_l", messages.at(status.name));
 
+        json.set("categories", Utils.toJsonArray(categories, messages));
         json.set("authorities", Utils.toJsonArray(authorities, messages));
 
         return json;

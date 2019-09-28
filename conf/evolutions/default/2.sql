@@ -16,6 +16,16 @@ insert into authority (name) values
 ('Тест 2'),
 ('Тест 3');
 
+insert into issue_category (name, icon, color) values
+('Тест 1', 'plus', '#ff0000'),
+('Тест 2', 'plus', '#ff0000'),
+('Тест 3', 'plus', '#ff0000');
+
+insert into issue_issue_category (issue_id, issue_category_id) values
+(1, 1),
+(1, 2),
+(2, 1);
+
 insert into issue_authority (issue_id, authority_id) values
 (1, 1),
 (1, 2),
@@ -24,8 +34,11 @@ insert into issue_authority (issue_id, authority_id) values
 # --- !Downs
 
 delete from issue_authority;
+delete from issue_issue_category;
 delete from issue;
+delete from issue_category;
 delete from authority;
 
 alter table issue alter column id restart with 1;
+alter table issue_category alter column id restart with 1;
 alter table authority alter column id restart with 1;
