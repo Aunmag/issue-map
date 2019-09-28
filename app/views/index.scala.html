@@ -1,13 +1,35 @@
 @views.html.base() {
     <div id="app">
-        <div v-bind:style="mapStyle" id="map"></div>
-        <div v-bind:style="cardStyle" class="card card-default" id='menu'>
-            <div class="card-body">
-                <button class="btn btn-default">Test</button>
+        <div class="row control-block">
+            <div class="menu-container col-3">
+                <div v-bind:style="cardStyle" class="card card-default col-12 float-left" id='menu'>
+                    <div class="card-body">
+                        <div class="row label">
+                            <span>Добавить:</span>
+                        </div>
+                        <div class="row create-panel">
+                            <a class="btn btn-menu btn-marker col"    title="Точка" id="create-button" v-on:click="drawModeEnable('point')">
+                                <i class="fas fa-map-marker"></i> <span>Точка</span>
+                            </a>
+                            <a class="btn btn-menu btn-road col"      title="Дорога" id="create-button" v-on:click="drawModeEnable('road')">
+                                <i class="fas fa-road"></i> <span>Дорога</span>
+                            </a>
+                            <a class="btn btn-menu btn-polygon col"  title="Участок" id="create-button" v-on:click="drawModeEnable('polygon')">
+                                <i class="fas fa-draw-polygon"></i> <span>Участок</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="view-container col-9">
+                <div v-bind:style="viewStyle" class="card card-default col-12 float-right" id="view-panel" v-if="visibleViewPanel">
+                    <a class="btn  close-view" v-on:click="toggleViewPanel"><i class="fas fa-times"></i></a>
+                </div>
+            </div>
+            <a class="btn btn-open-view" v-on:click="openView('list')"><i class="fas fa-bars"></i> Меню</a>
         </div>
+        <div v-bind:style="mapStyle" id="map"></div>
     </div>
-
     <script>
         var vm = new Vue({
             el: '#app',
@@ -16,21 +38,58 @@
                     height: null
                 },
                 mapStyle: {
-                    height: null,
-                    width: null
+                    height: null
+                },
+                viewStyle: {
+                    height: null
                 },
                 popup : null,
                 layer : null,
                 map : null,
-                visibleMenu: true,
-                drawMode: false
+                visibleMenu : true,
+                drawMode : false,
+                group : null,
+                zoom : null,
+                visibleViewPanel: false
             },
             methods: {
+                drawModeEnable: function() {
+                    this.drawMode = true;
+                    L.DomUtil.addClass(this.map._container,'crosshair-cursor-draw');
+                },
                 showCoordinates: function(e) {
                     alert(e.latlng);
                 },
-                createMarker: function(e) {
-                    L.marker(e.latlng).addTo(this.map);
+                pastePoint: function(e) {
+                    if (this.drawMode) {
+                        this.addMarker(e.latlng, 'Новая метка', 'new');
+                        this.drawMode = false;
+                        L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
+                    }
+                },
+                toggleViewPanel: function(e) {
+                    this.visibleViewPanel = !this.visibleViewPanel;
+                },
+                openView: function(view) {
+                    if (view == 'list') {
+                        this.toggleViewPanel();
+                    }
+                },
+                addMarker: function(latlng, title, category, id) {
+                    var options = {
+                        title: title,
+                        icon: null,
+                        id: id
+                    };
+                    console.log(category);
+                    if (category) {
+                        options.icon = L.AwesomeMarkers.icon({icon: category.icon, prefix: 'fa', markerColor: category.color, spin: false});
+                    }
+                    var marker = L.marker(latlng, options);
+                    marker.on('click', function(e) {
+                        console.log(e.target.options.id);
+                    })
+                    marker.addTo(this.group);
                 },
                 centerMap: function(e) {
                     this.map.panTo(e.latlng);
@@ -42,9 +101,16 @@
                     this.map.zoomOut();
                 },
                 onResize: function() {
-                    this.cardStyle.height = window.innerHeight - 100 + 'px';
+                    this.cardStyle.height = window.innerHeight - 36 + 'px';
+                    this.viewStyle.height = window.innerHeight - 36 + 'px';
                     this.mapStyle.height = window.innerHeight + 'px';
-                    this.mapStyle.width = window.innerWidth + 'px';
+                },
+                load: function() {
+                    $.get('@api.v1.routes.IssueController.list()', function(data) {
+                        data.forEach(function(marker) {
+                            this.addMarker(L.latLng(marker.lat, marker.lon), marker.title, marker.categories[0], marker.id);
+                        }, vm);
+                    });
                 }
             },
             mounted: function () {
@@ -60,23 +126,31 @@
                     this.map = new L.Map('map', {
                         center: new L.LatLng(55.438944, 65.339271),
                         zoom: 16,
+                        zoomControl: false,
                         layers: [this.layer]
                     });
+                    this.group = new L.featureGroup();
+                    this.group.addTo(this.map);
+                    this.zoom = L.control.zoom({
+                        position: 'bottomright'
+                    });
+                    this.zoom.addTo(this.map);
                     L.DomUtil.addClass(this.map._container, 'crosshair-cursor-default');
                     $(window).on('resize', this.onResize);
-                    $(window).on('mousedown', function(e) {
+                    this.map.on('click', this.pastePoint);
+                    $(window).on('mousedown', '.leaflet-container', function(e) {
                         if (e.button == 0 && !this.drawMode) {
                             L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
                             L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
                         } else if (e.button == 0 && this.drawMode) {
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-draw');
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
                             L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
                         }
                     });
-                    $(window).on('mouseup', function(e) {
+                    $(window).on('mouseup', '.leaflet-container', function(e) {
                         if (e.button == 0 && !this.drawMode) {
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-default');
                             L.DomUtil.removeClass(this.map._container,'crosshair-cursor-drag');
+                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-default');
                         } else if (e.button == 0 && this.drawMode) {
                             L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
                             L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
@@ -86,6 +160,7 @@
                     setInterval(function(vm) {
                         vm.map.invalidateSize();
                     }, 250, this);
+                    this.load();
                 });
             }
         });

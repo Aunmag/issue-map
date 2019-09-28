@@ -19,7 +19,7 @@ public class IssueCategory extends BaseModel {
     @Column(nullable = false, length = 50)
     public String icon;
 
-    @Column(nullable = false, length = 7)
+    @Column(nullable = false, length = 50)
     public String color;
 
     public IssueCategory(String name, String icon, String color) {

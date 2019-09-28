@@ -5,16 +5,20 @@
 <head>
     <meta charset="utf-8">
     <title>@Messages("common.app_title")</title>
-    <link rel="stylesheet" href='https://use.fontawesome.com/releases/v5.2.0/css/all.css'>
+    <link rel="stylesheet" href='@routes.Assets.versioned("lib/font-awesome/css/all.css")'>
     <link rel="stylesheet" href='@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")'>
     <link rel="stylesheet" href='@routes.Assets.versioned("lib/leaflet/leaflet.css")'>
+    <link rel="stylesheet" href='@routes.Assets.versioned("lib/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css")'>
     <link rel="stylesheet" href='@routes.Assets.versioned("css/style.css")'>
     <script src='@routes.Assets.versioned("lib/jquery/jquery.min.js")'></script>
     <script src='@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")'></script>
     <script src='@routes.Assets.versioned("lib/vue/vue.min.js")'></script>
     <script src='@routes.Assets.versioned("lib/leaflet/leaflet.js")'></script>
+    <script src='@routes.Assets.versioned("lib/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js")'></script>
 </head>
 <body>
+
     <div class="main-container">@content</div>
+
 </body>
 </html>

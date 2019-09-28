@@ -22,14 +22,21 @@ insert into authority (name, phone, email, url, address) values
 ('ООО "ЮНИТ"',null,null,null,'КУРГАНСКАЯ ОБЛ.,ПРИТОБОЛЬНЫЙ Р-Н,П СОСНОВЫЙ,УЛ СОЛНЕЧНАЯ, Д 1');
 
 insert into issue_category (name, icon, color) values
-('Тест 1', 'plus', '#ff0000'),
-('Тест 2', 'plus', '#ff0000'),
-('Тест 3', 'plus', '#ff0000');
+('Дороги', 'road', 'darkblue'),
+('Вобоснабжение', 'tint-slash', 'blue'),
+('Мусор', 'trash-alt', 'gray');
 
 insert into issue_issue_category (issue_id, issue_category_id) values
 (1, 1),
 (1, 2),
-(2, 1);
+(2, 1),
+(3, 2),
+(4, 2),
+(5, 3),
+(6, 3),
+(7, 2),
+(8, 3),
+(9, 3);
 
 insert into issue_authority (issue_id, authority_id) values
 (1, 1),
