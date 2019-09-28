@@ -31,6 +31,9 @@
             <a class="btn btn-access-user" v-on:click="getAccess('User')"><i class="fas fa-user-alt"></i></a>
         </div>
         <div v-bind:style="mapStyle" id="map"></div>
+        <div id="form-container">
+            @views.html.issue.create()
+        </div>
     </div>
     <script>
         var vm = new Vue({
@@ -52,19 +55,56 @@
                 drawMode : false,
                 group : null,
                 zoom : null,
-                visibleViewPanel: false
+                visibleViewPanel: false,
+                issueForm: {
+                    lat: 0,
+                    lon: 0
+                }
             },
             methods: {
+                send: function (url, type, date, header) {
+                    var unindexed_array = date.serializeArray();
+                    var indexed_array = {};
+
+                    $.map(unindexed_array, function(n, i) {
+                        indexed_array[n['name']] = n['value'];
+                    });
+
+                    if (!header) {
+                        header = {
+                            "Content-Type": "application/json"
+                        }
+                    }
+
+                    $.ajax({
+                        url: url,
+                        type: type,
+                        data: JSON.stringify(indexed_array),
+                        headers: header,
+                        dataType: 'json',
+                        success: function (data) {
+                            console.info(data);
+                        }
+                    });
+                },
                 drawModeEnable: function() {
                     this.drawMode = true;
                     L.DomUtil.addClass(this.map._container,'crosshair-cursor-draw');
+                },
+                getForm: function(latlng) {
+                    this.issueForm.lat = latlng.lat;
+                    this.issueForm.lon = latlng.lng;
+                    $('#form-container .modal').modal();
+                },
+                createIssue: function() {
+                    this.send('@api.v1.routes.IssueController.create()', 'POST', $('#createIssueForm'))
                 },
                 showCoordinates: function(e) {
                     alert(e.latlng);
                 },
                 pastePoint: function(e) {
                     if (this.drawMode) {
-                        this.addMarker(e.latlng, 'Новая метка', 'new');
+                        this.newMarker(e.latlng, 'Новая метка', 'new');
                         this.drawMode = false;
                         L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
                     }
@@ -77,40 +117,41 @@
                         this.toggleViewPanel();
                     }
                 },
-                addMarker: function(latlng, title, category, id, meta) {
+                newMarker: function(latlng) {
                     var options = {
-                        icon: null,
-                        id: id
+                        icon : L.AwesomeMarkers.icon({icon: 'plus', prefix: 'fa', markerColor: 'red', spin: false})
                     };
-                    console.log(category);
-                    if (category) {
-                        options.icon = L.AwesomeMarkers.icon({icon: category.icon, prefix: 'fa', markerColor: category.color, spin: false});
+                    var marker = L.marker(latlng, options);
+                    marker.addTo(this.group);
+                    this.getForm(latlng)
+                },
+                addMarker: function(options) {
+                    var category = options.categories;
+                    if (category.length != 0) {
+                        options.icon = L.AwesomeMarkers.icon({icon: category[0].icon, prefix: 'fa', markerColor: category[0].color, spin: false});
+                    } else {
+                        options.icon = L.AwesomeMarkers.icon({icon: 'question', prefix: 'fa', markerColor: 'orange', spin: false});
                     }
+                    var latlng = L.latLng(options.lat, options.lon);
                     var marker = L.marker(latlng, options);
 
-                    if (meta) {
-                        var popup = `<b>${meta.title}</b> <i>(${meta.status.name})</i><br>`;
 
-                        meta.categories.forEach(function(category) {
-                            popup += `<br>- ${category.name}`;
-                        });
-
-                        var created = new Intl.DateTimeFormat('ru-RU').format(new Date(meta.created));
-                        popup += `<br><br><div style="color:gray">Создана: ${created}</div>`;
-
-                        marker.bindPopup(popup);
-
-                        marker.on('mouseover', function (e) {
-                            this.openPopup();
-                        });
-
-                        marker.on('mouseout', function (e) {
-                            this.closePopup();
-                        });
-                    }
+                    var popup = `<b>${marker.options.title}</b> <i>(${marker.options.status.name})</i><br>`;
+                    marker.options.categories.forEach(function(category) {
+                        popup += `<br>- ${category.name}`;
+                    });
+                    var created = new Intl.DateTimeFormat('ru-RU').format(new Date(marker.options.created));
+                    popup += `<br><br><div style="color:gray">Создана: ${created}</div>`;
+                    marker.bindPopup(popup);
+                    marker.on('mouseover', function (e) {
+                        this.openPopup();
+                    });
+                    marker.on('mouseout', function (e) {
+                        this.closePopup();
+                    });
 
                     marker.on('click', function(e) {
-                        console.log(e.target.options.id);
+                        this.getForm(this.getLatLng(), this.options)
                     })
                     marker.addTo(this.group);
                 },
@@ -131,7 +172,7 @@
                 load: function() {
                     $.get('@api.v1.routes.IssueController.list()', function(data) {
                         data.forEach(function(marker) {
-                            this.addMarker(L.latLng(marker.lat, marker.lon), marker.title, marker.categories[0], marker.id, marker);
+                            this.addMarker(marker);
                         }, vm);
                     });
                 },
