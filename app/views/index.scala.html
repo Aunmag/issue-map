@@ -60,7 +60,8 @@
                     category: null
                 },
                 categories: [],
-                selected: ''
+                selected: '',
+                lock: false
             },
             methods: {
                 formToJSON: function(form) {
@@ -136,6 +137,8 @@
                         }
                         this.drawMode = false;
                         L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
+                    } else {
+                        this.loadHousePoly(e.latlng.lat, e.latlng.lng);
                     }
                 },
                 toggleViewPanel: function(e) {
@@ -246,22 +249,67 @@
                         }, vm);
                     });
                 },
-                loadHouse: function(latMin, lonMin, latMax, lonMax){
+                loadHousePoly: function(lat, lon){
+                    var me = this;
+
+                    if (me.housePoly) {
+                        me.housePoly.remove();
+                    }
+
+                    $.get('/api/v1/house', {
+                        lat : lat,
+                        lon : lon
+                    }, function(data) {
+                        if (me.housePoly) {
+                            me.housePoly.remove();
+                        }
+
+                        var latlngs = data.polygon.slice(10, -2).split(',').map(function(latLng){
+                                var a = latLng.split(' ');
+                                return [a[1], a[0]];
+                            });
+
+                        me.housePoly = L.polygon(latlngs, {color: 'blue'});
+                        me.housePoly.addTo(me.map);
+                        me.housePoly.bindPopup(`Дом: ${data.street} ${data.name}<br>Состояние: ${data.status.name}`);
+                        me.housePoly.openPopup();
+                    });
+                },
+                loadHouse: function(latMin, lonMin, latMax, lonMax, callback){
                     $.get('/api/v1/house/all', {
                         latMin : latMin,
                         lonMin : lonMin,
                         latMax : latMax,
                         lonMax : lonMax
                     }, function(data) {
+                        vm.groups[0].clearLayers();
                         var latlngs = [];
                         data.forEach( function(dirtyPolygons){
-                            var polygons = dirtyPolygons.polygon.slice(10, -2).split(',').map(function(latLng){
-                                return latLng.split(' ');
+                            var latlngs = dirtyPolygons.polygon.slice(10, -2).split(',').map(function(latLng){
+                                var a = latLng.split(' ');
+                                return [a[1], a[0]];
                             });
-                            latlngs.push(polygon);
+                            var grade = dirtyPolygons.status.grade;
+                            var color;
+                            if (grade == 1) {
+                                color = '#f00'
+                            }
+                            if (grade == 2) {
+                                color = '#fa0'
+                            }
+                            if (grade == 3) {
+                                color = '#ff0'
+                            }   
+                            if (grade == 4) {
+                                color = '#0f0'
+                            }
+                            if (grade == 5) {
+                                color = '#afa'
+                            }
+                            var polygon = L.polygon(latlngs, {color: color, stroke: true, weight: 1});
+                            polygon.addTo(vm.groups[0]);
                         });
-                        var polygon = L.polygon(latlngs, {color: 'red'});
-                        polygon.addTo(this.map);
+                        callback();
                     });
                 },
                 getAccess: function(access) {
@@ -299,6 +347,9 @@
                         zoomControl: false,
                         layers: [this.layer]
                     });
+                    this.groups[0] =  new L.featureGroup();
+                    this.groups[0].addTo(this.map);
+                    this.housePoly = null;
                     this.tempGroup = new L.featureGroup();
                     this.tempGroup.addTo(this.map);
                     this.zoom = L.control.zoom({
@@ -308,6 +359,17 @@
                     L.DomUtil.addClass(this.map._container, 'crosshair-cursor-default');
                     $(window).on('resize', this.onResize);
                     this.map.on('click', this.pastePoint);
+                    this.map.on('move', function(e) {
+                        if (!vm.lock) {
+                            vm.lock = true;
+                            var viewport = vm.map.getBounds();
+                            var ne = viewport.getNorthEast();
+                            var sw = viewport.getSouthWest();
+                            vm.loadHouse(sw.lat, sw.lng, ne.lat, ne.lng, function() {
+                                vm.lock = false;
+                            })
+                        }
+                    })
                     $(window).on('hide.bs.modal', this.clearTempLayer);
                     this.onResize();
                     setInterval(function(vm) {

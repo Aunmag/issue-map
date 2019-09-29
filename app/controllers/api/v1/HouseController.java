@@ -11,9 +11,9 @@ import tools.UtilsGeo;
 public class HouseController extends Controller {
 
     /**
-     * About 25 meters in Kurgan
+     * About 50 meters in Kurgan
      */
-    public static final double HOUSE_SEARCH_RANGE = 0.0002;
+    public static final double HOUSE_SEARCH_RANGE = 0.0004;
 
     public Result detail(Double lat, Double lon) {
         var point = new GeometryFactory().createPoint(new Coordinate(lon, lat));
@@ -41,7 +41,7 @@ public class HouseController extends Controller {
         var data = new ObjectMapper().createArrayNode();
 
         House.FIND.query()
-                .setMaxRows(1000)
+                .setMaxRows(500)
                 .where()
                 .gt("lat", latMin)
                 .lt("lat", latMax)
