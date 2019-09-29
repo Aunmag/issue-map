@@ -36,7 +36,7 @@
                     height: null
                 },
                 filters: {
-                    
+
                 },
                 card: {
                     title: null,
@@ -186,6 +186,7 @@
                     marker.options.categories.forEach(function(category) {
                         popup += `<br>- ${category.name}`;
                     });
+                    popup += `<br><br>Заявка: ${options.id}`;
                     var created = new Intl.DateTimeFormat('ru-RU').format(new Date(marker.options.created));
                     popup += `<br><br><div style="color:gray">Создана: ${created}</div>`;
                     marker.bindPopup(popup);
