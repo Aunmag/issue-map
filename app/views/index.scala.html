@@ -19,7 +19,7 @@
         <div v-bind:style="mapStyle" id="map"></div>
         <div id="form-container">
             @views.html.issue.create()
-            <!-- @views.html.issue.card() -->
+            @views.html.issue.card()
         </div>
     </div>
     <script>
@@ -105,7 +105,7 @@
                 },
                 getIssueCard: function(issue){
                     this.card = issue.options;
-                    $('#form-container .modal').modal();
+                    $('#form-container #createFormModal').modal();
                 },
                 createIssue: function() {
                     var data = this.formToJSON($('#createIssueForm'));
@@ -118,7 +118,7 @@
                                 spin: false})
                         };
                         var marker = L.marker(L.latLng(data.lat, data.lon), options);
-                        marker.addTo(this.group); //TODO
+                        marker.addTo(this.groups[data.category - 1]);
                         $('#form-container .modal').modal('hide');
                     });
                 },
@@ -162,6 +162,16 @@
                     tempMarker.addTo(this.tempGroup);
                     this.getForm(latlng)
                 },
+                clean: function (obj) {
+                    var propNames = Object.getOwnPropertyNames(obj);
+                    for (var i = 0; i < propNames.length; i++) {
+                        var propName = propNames[i];
+                        if (obj[propName] === null || obj[propName] === undefined || obj[propName] == 'id') {
+                            delete obj[propName];
+                        }
+                    }
+                    return obj;
+                },
                 addMarker: function(options) {
                     var category = options.categories;
                     if (category.length != 0) {
@@ -197,7 +207,10 @@
                         this.closePopup();
                     });
 
-                    marker.on('click', function(e) {})
+                    marker.on('click', function(e) {
+                        vm.card = e.target.options;
+                        $('#form-container #cardModalForm').modal();
+                    });
                     if (!this.groups[category[0].id]) {
                         this.groups[category[0].id] = new L.featureGroup();
                         this.groups[category[0].id].addTo(this.map);

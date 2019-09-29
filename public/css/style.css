@@ -157,3 +157,9 @@ body {
     position: relative;
     top: -7px;
 }
+.sel {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 10px;
+}
