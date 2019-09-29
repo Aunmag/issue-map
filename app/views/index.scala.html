@@ -50,7 +50,7 @@
                 map : null,
                 visibleMenu : true,
                 drawMode : false,
-                group : null,
+                groups : [],
                 tempGroup : null,
                 zoom : null,
                 visibleViewPanel: false,
@@ -118,7 +118,7 @@
                                 spin: false})
                         };
                         var marker = L.marker(L.latLng(data.lat, data.lon), options);
-                        marker.addTo(this.group);
+                        marker.addTo(this.group); //TODO
                         $('#form-container .modal').modal('hide');
                     });
                 },
@@ -131,10 +131,8 @@
                             this.newMarker(e.latlng, 'Новая метка', 'new');
                         }
                         if (this.drawMode == 'road') {
-
                         }
                         if (this.drawMode == 'polygon') {
-
                         }
                         this.drawMode = false;
                         L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
@@ -184,7 +182,6 @@
                     var latlng = L.latLng(options.lat, options.lon);
                     var marker = L.marker(latlng, options);
 
-
                     var popup = `<b>${marker.options.title}</b> <i>(${marker.options.status.name})</i><br>`;
                     marker.options.categories.forEach(function(category) {
                         popup += `<br>- ${category.name}`;
@@ -200,7 +197,11 @@
                     });
 
                     marker.on('click', function(e) {})
-                    marker.addTo(this.group);
+                    if (!this.groups[category[0].id]) {
+                        this.groups[category[0].id] = new L.featureGroup();
+                        this.groups[category[0].id].addTo(this.map);
+                    }
+                    marker.addTo(this.groups[category[0].id]);
                 },
                 centerMap: function(e) {
                     this.map.panTo(e.latlng);
@@ -256,6 +257,14 @@
                         $.get('@api.v1.routes.ApiController.loginAsUser()', function(data) {});
                     }
                 },
+                toggleCategories: function(id, e) {
+                    var state = e.target.checked;
+                    if (state) {
+                        this.groups[id].addTo(this.map)
+                    } else {
+                        this.groups[id].removeFrom(this.map)
+                    }
+                },
                 clearTempLayer: function(e) {
                     this.tempGroup.clearLayers();
                 }
@@ -276,8 +285,6 @@
                         zoomControl: false,
                         layers: [this.layer]
                     });
-                    this.group = new L.featureGroup();
-                    this.group.addTo(this.map);
                     this.tempGroup = new L.featureGroup();
                     this.tempGroup.addTo(this.map);
                     this.zoom = L.control.zoom({

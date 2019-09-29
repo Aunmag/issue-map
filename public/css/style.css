@@ -105,13 +105,13 @@ overflow: auto
     width: 20px;
     height: 20px;
 }
-#cbx {
+[id^="cbx"] {
     display: none;
 }
-#cbx:checked + .cbx {
+[id^="cbx"]:checked + .cbx {
     border-color: #0b76ef;
 }
-#cbx:checked + .cbx .flip {
+[id^="cbx"]:checked + .cbx .flip {
     transform: rotateY(180deg);
 }
 .front,
@@ -151,6 +151,7 @@ body {
 }
 .filters > div{
     padding: 10px 0px;
+    margin: 0 -10px;
 }
 .filters > div > span{
     position: relative;

@@ -1,7 +1,4 @@
 <div class="card-body">
-    <div class="row label">
-        <span>Добавить:</span>
-    </div>
     <div class="row create-panel">
         <a class="btn btn-menu btn-marker col" title="Точка" id="create-button" v-on:click="drawModeEnable('point')">
             <i class="fas fa-map-marker"></i> <span>Точка</span>
@@ -14,10 +11,10 @@
         </a>
     </div>
     <div class="clearfix"></div>
-    <div class="filters">
+    <div class="row filters">
         <div class="col-12" v-for="category in categories">
-            <input id="cbx" type="checkbox" checked/>
-            <label class="cbx" for="cbx">
+            <input :id="'cbx' + category.id" type="checkbox" checked v-on:change="toggleCategories(category.id, event)" />
+            <label class="cbx" :for="'cbx' + category.id">
                 <div class="flip">
                     <div class="front"></div>
                     <div class="back">
