@@ -13,4 +13,21 @@
             <i class="fas fa-draw-polygon"></i> <span>Участок</span>
         </a>
     </div>
+    <div class="clearfix"></div>
+    <div class="filters">
+        <div class="col-12" v-for="category in categories">
+            <input id="cbx" type="checkbox" checked/>
+            <label class="cbx" for="cbx">
+                <div class="flip">
+                    <div class="front"></div>
+                    <div class="back">
+                        <svg width="16" height="14" viewBox="0 0 16 14">
+                        <path d="M2 8.5L6 12.5L14 1.5"></path>
+                        </svg>
+                    </div>
+                </div>
+            </label>
+            <span>{{category.name}}</span>
+        </div>
+    </div>
 </div>

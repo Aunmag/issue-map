@@ -21,7 +21,7 @@
             <td>{{new Intl.DateTimeFormat('ru-RU',{
                     year: 'numeric', month: 'numeric', day: 'numeric',
                     hour: 'numeric', minute: 'numeric', hour12: false
-                    }).format(new Date(issue.created))}}</td>
+                }).format(new Date(issue.created))}}</td>
             <td>
                 <div v-for="category in issue.categories">
                     {{category.name}}

@@ -44,9 +44,9 @@ insert into issue_category (name, icon, color) values
 ('Дороги', 'road', 'darkblue'),
 ('Вобоснабжение', 'tint-slash', 'blue'),
 ('Мусор', 'trash-alt', 'gray'),
-('Состояние здания', 'house-damage', 'violet'),
+('Состояние здания', 'house-damage', 'white'),
 ('Благоустройство', 'tree', 'red'),
-('Другое', 'atom', 'yellow');
+('Другое', 'exclamation', 'purple');
 
 insert into issue_issue_category (issue_id, issue_category_id) values
 (1, 1),

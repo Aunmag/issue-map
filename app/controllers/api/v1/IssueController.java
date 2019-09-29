@@ -13,7 +13,8 @@ public class IssueController extends Controller {
                 data.get("title").asText(),
                 data.get("description").asText(),
                 data.get("lat").asDouble(),
-                data.get("lon").asDouble()
+                data.get("lon").asDouble(),
+                data.get("category").asInt()
         );
 
         issue.save();

@@ -19,6 +19,7 @@
         <div v-bind:style="mapStyle" id="map"></div>
         <div id="form-container">
             @views.html.issue.create()
+            <!-- @views.html.issue.card() -->
         </div>
     </div>
     <script>
@@ -34,6 +35,15 @@
                 viewStyle: {
                     height: null
                 },
+                filters: {
+                    
+                },
+                card: {
+                    title: null,
+                    description: null,
+                    categories:[{}],
+                    authorities:[{}]
+                },
                 issues: [],
                 popup : null,
                 layer : null,
@@ -41,6 +51,7 @@
                 visibleMenu : true,
                 drawMode : false,
                 group : null,
+                tempGroup : null,
                 zoom : null,
                 visibleViewPanel: false,
                 issueForm: {
@@ -52,13 +63,16 @@
                 selected: ''
             },
             methods: {
-                send: function (url, type, date, callback, header) {
-                    var unindexed_array = date.serializeArray();
+                formToJSON: function(form) {
+                    var unindexed_array = form.serializeArray();
                     var indexed_array = {};
 
                     $.map(unindexed_array, function(n, i) {
                         indexed_array[n['name']] = n['value'];
                     });
+                    return indexed_array;
+                },
+                send: function (url, type, data, callback, header) {
 
                     if (!header) {
                         header = {
@@ -69,8 +83,9 @@
                     $.ajax({
                         url: url,
                         type: type,
-                        data: JSON.stringify(indexed_array),
+                        data: JSON.stringify(data),
                         headers: header,
+                        context:this,
                         dataType: 'json',
                         success: callback
                     });
@@ -79,8 +94,8 @@
                     var position = e.target.selectedIndex;
                     this.issueForm.category = $('#issueCategorySelectForm option')[position].val();
                 },
-                drawModeEnable: function() {
-                    this.drawMode = true;
+                drawModeEnable: function(mode) {
+                    this.drawMode = mode;
                     L.DomUtil.addClass(this.map._container,'crosshair-cursor-draw');
                 },
                 getForm: function(latlng) {
@@ -88,15 +103,39 @@
                     this.issueForm.lon = latlng.lng;
                     $('#form-container .modal').modal();
                 },
+                getIssueCard: function(issue){
+                    this.card = issue.options;
+                    $('#form-container .modal').modal();
+                },
                 createIssue: function() {
-                    this.send('@api.v1.routes.IssueController.create()', 'POST', $('#createIssueForm'))
+                    var data = this.formToJSON($('#createIssueForm'));
+                    this.send('@api.v1.routes.IssueController.create()', 'POST', data, function(id){
+                        var options = {
+                            icon : L.AwesomeMarkers.icon({
+                                icon: this.categories[data.category - 1].icon,
+                                prefix: 'fa',
+                                markerColor: this.categories[data.category - 1].color,
+                                spin: false})
+                        };
+                        var marker = L.marker(L.latLng(data.lat, data.lon), options);
+                        marker.addTo(this.group);
+                        $('#form-container .modal').modal('hide');
+                    });
                 },
                 showCoordinates: function(e) {
                     alert(e.latlng);
                 },
                 pastePoint: function(e) {
                     if (this.drawMode) {
-                        this.newMarker(e.latlng, 'Новая метка', 'new');
+                        if (this.drawMode == 'point') {
+                            this.newMarker(e.latlng, 'Новая метка', 'new');
+                        }
+                        if (this.drawMode == 'road') {
+
+                        }
+                        if (this.drawMode == 'polygon') {
+
+                        }
                         this.drawMode = false;
                         L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
                     }
@@ -106,24 +145,41 @@
                 },
                 openView: function(view) {
                     if (view == 'list') {
-                        this.load();
+                        this.load(function(data) {
+                            vm.issues = data;
+                        });
                         this.toggleViewPanel();
                     }
                 },
                 newMarker: function(latlng) {
                     var options = {
-                        icon : L.AwesomeMarkers.icon({icon: 'plus', prefix: 'fa', markerColor: 'red', spin: false})
+                        icon : L.AwesomeMarkers.icon({
+                            icon: 'plus',
+                            prefix: 'fa',
+                            markerColor: 'red',
+                            spin: false
+                        })
                     };
-                    var marker = L.marker(latlng, options);
-                    marker.addTo(this.group);
+                    var tempMarker = L.marker(latlng, options);
+                    tempMarker.addTo(this.tempGroup);
                     this.getForm(latlng)
                 },
                 addMarker: function(options) {
                     var category = options.categories;
                     if (category.length != 0) {
-                        options.icon = L.AwesomeMarkers.icon({icon: category[0].icon, prefix: 'fa', markerColor: category[0].color, spin: false});
+                        options.icon = L.AwesomeMarkers.icon({
+                            icon: category[0].icon,
+                            prefix: 'fa',
+                            markerColor: category[0].color,
+                            spin: false
+                        });
                     } else {
-                        options.icon = L.AwesomeMarkers.icon({icon: 'question', prefix: 'fa', markerColor: 'orange', spin: false});
+                        options.icon = L.AwesomeMarkers.icon({
+                            icon: 'question',
+                            prefix: 'fa',
+                            markerColor: 'orange',
+                            spin: false
+                        });
                     }
                     var latlng = L.latLng(options.lat, options.lon);
                     var marker = L.marker(latlng, options);
@@ -143,9 +199,7 @@
                         this.closePopup();
                     });
 
-                    marker.on('click', function(e) {
-                        this.getForm(this.getLatLng(), this.options)
-                    })
+                    marker.on('click', function(e) {})
                     marker.addTo(this.group);
                 },
                 centerMap: function(e) {
@@ -167,10 +221,8 @@
                         data.forEach(callback, vm);
                     });
                 },
-                load: function(){
-                    $.get('@api.v1.routes.IssueController.list()', function(data) {
-                        vm.issues = data;
-                    });
+                load: function(callback){
+                    $.get('@api.v1.routes.IssueController.list()', callback);
                 },
                 loadIssueCategory: function() {
                     $.get('@api.v1.routes.IssueCategoryController.list()', function(data) {
@@ -179,12 +231,33 @@
                         }, vm);
                     });
                 },
+                loadHouse: function(latMin, lonMin, latMax, lonMax){
+                    $.get('/api/v1/house/all', {
+                        latMin : latMin,
+                        lonMin : lonMin,
+                        latMax : latMax,
+                        lonMax : lonMax
+                    }, function(data) {
+                        var latlngs = [];
+                        data.forEach( function(dirtyPolygons){
+                            var polygons = dirtyPolygons.polygon.slice(10, -2).split(',').map(function(latLng){
+                                return latLng.split(' ');
+                            });
+                            latlngs.push(polygon);
+                        });
+                        var polygon = L.polygon(latlngs, {color: 'red'});
+                        polygon.addTo(this.map);
+                    });
+                },
                 getAccess: function(access) {
                     if(access=='Admin'){
                         $.get('@api.v1.routes.ApiController.loginAsAdmin()', function(data) {});
                     } else {
                         $.get('@api.v1.routes.ApiController.loginAsUser()', function(data) {});
                     }
+                },
+                clearTempLayer: function(e) {
+                    this.tempGroup.clearLayers();
                 }
             },
             mounted: function () {
@@ -205,6 +278,8 @@
                     });
                     this.group = new L.featureGroup();
                     this.group.addTo(this.map);
+                    this.tempGroup = new L.featureGroup();
+                    this.tempGroup.addTo(this.map);
                     this.zoom = L.control.zoom({
                         position: 'bottomright'
                     });
@@ -212,24 +287,7 @@
                     L.DomUtil.addClass(this.map._container, 'crosshair-cursor-default');
                     $(window).on('resize', this.onResize);
                     this.map.on('click', this.pastePoint);
-                    $(window).on('mousedown', '.leaflet-container', function(e) {
-                        if (e.button == 0 && !this.drawMode) {
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
-                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
-                        } else if (e.button == 0 && this.drawMode) {
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
-                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
-                        }
-                    });
-                    $(window).on('mouseup', '.leaflet-container', function(e) {
-                        if (e.button == 0 && !this.drawMode) {
-                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-drag');
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-default');
-                        } else if (e.button == 0 && this.drawMode) {
-                            L.DomUtil.addClass(this.map._container,'crosshair-cursor-drag');
-                            L.DomUtil.removeClass(this.map._container,'crosshair-cursor-default');
-                        }
-                    });
+                    $(window).on('hide.bs.modal', this.clearTempLayer);
                     this.onResize();
                     setInterval(function(vm) {
                         vm.map.invalidateSize();
