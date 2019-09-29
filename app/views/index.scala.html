@@ -136,6 +136,8 @@
                         }
                         this.drawMode = false;
                         L.DomUtil.removeClass(this.map._container,'crosshair-cursor-draw');
+                    } else {
+                        this.loadHousePoly(e.latlng.lat, e.latlng.lng);
                     }
                 },
                 toggleViewPanel: function(e) {
@@ -233,6 +235,32 @@
                         }, vm);
                     });
                 },
+                loadHousePoly: function(lat, lon){
+                    var me = this;
+
+                    if (me.housePoly) {
+                        me.housePoly.remove();
+                    }
+
+                    $.get('/api/v1/house', {
+                        lat : lat,
+                        lon : lon
+                    }, function(data) {
+                        if (me.housePoly) {
+                            me.housePoly.remove();
+                        }
+
+                        var latlngs = data.polygon.slice(10, -2).split(',').map(function(latLng){
+                                var a = latLng.split(' ');
+                                return [a[1], a[0]];
+                            });
+
+                        me.housePoly = L.polygon(latlngs, {color: 'blue'});
+                        me.housePoly.addTo(me.map);
+                        me.housePoly.bindPopup(`Дом: ${data.street} ${data.name}<br>Состояние: ${data.status.name}`);
+                        me.housePoly.openPopup();
+                    });
+                },
                 loadHouse: function(latMin, lonMin, latMax, lonMax){
                     $.get('/api/v1/house/all', {
                         latMin : latMin,
@@ -240,15 +268,14 @@
                         latMax : latMax,
                         lonMax : lonMax
                     }, function(data) {
-                        var latlngs = [];
                         data.forEach( function(dirtyPolygons){
-                            var polygons = dirtyPolygons.polygon.slice(10, -2).split(',').map(function(latLng){
+                            var latlngs = dirtyPolygons.polygon.slice(10, -2).split(',').map(function(latLng){
                                 return latLng.split(' ');
                             });
-                            latlngs.push(polygon);
-                        });
-                        var polygon = L.polygon(latlngs, {color: 'red'});
-                        polygon.addTo(this.map);
+
+                            var polygon = L.polygon(latlngs, {color: 'red'});
+                            polygon.addTo(this.map);
+                        }, this);
                     });
                 },
                 getAccess: function(access) {
@@ -286,6 +313,7 @@
                         zoomControl: false,
                         layers: [this.layer]
                     });
+                    this.housePoly = null;
                     this.tempGroup = new L.featureGroup();
                     this.tempGroup.addTo(this.map);
                     this.zoom = L.control.zoom({
