@@ -48,8 +48,7 @@ public class Issue extends BaseModel {
             String title,
             String description,
             Double lat,
-            Double lon,
-            Integer category
+            Double lon
     ) {
         this.title = title;
         this.description = description;
@@ -57,11 +56,6 @@ public class Issue extends BaseModel {
         this.lon = lon;
         this.status = IssueStatus.NEW;
         this.created = new Date();
-
-        var list = new ArrayList<IssueCategory>();
-        list.add(IssueCategory.FIND.byId(category));
-        this.categories = list;
-
     }
 
     @Override

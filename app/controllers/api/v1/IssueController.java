@@ -3,6 +3,7 @@ package controllers.api.v1;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.Controller;
 import models.Issue;
+import models.IssueCategory;
 import play.mvc.Result;
 
 public class IssueController extends Controller {
@@ -13,9 +14,12 @@ public class IssueController extends Controller {
                 data.get("title").asText(),
                 data.get("description").asText(),
                 data.get("lat").asDouble(),
-                data.get("lon").asDouble(),
-                data.get("category").asInt()
+                data.get("lon").asDouble()
         );
+
+        if (data.has("category")) {
+            issue.categories.add(IssueCategory.FIND.byId(data.get("category").asInt()));
+        }
 
         issue.save();
         return created(issue);
